@@ -9,7 +9,7 @@ class AgentState(TypedDict):
     ticker: str
     messages: Annotated[List[str], operator.add]
     analysis: dict
-    consensus: float
+    consensus: Annotated[float, operator.add]
 
 def technical_agent(state: AgentState):
     signal = get_technical_signal(state['ticker'])
@@ -28,7 +28,7 @@ def bear_agent(state: AgentState):
     return {"messages": [verdict], "consensus": 0.5}
 
 def portfolio_manager(state: AgentState): 
-    # Aggregate consensus (simplified)
+    # Aggregate consensus
     final_consensus = state.get('consensus', 0.5) 
     decision = decide_trade(final_consensus, "NORMAL")
     return {"analysis": {"decision": decision}}
