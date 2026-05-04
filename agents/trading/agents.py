@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
 from agents.trading.openmythos_client import reason_deeply
+from agents.trading.technical import get_technical_signal
 
 class AgentState(TypedDict):
     ticker: str
@@ -9,7 +10,10 @@ class AgentState(TypedDict):
     analysis: dict
     consensus: float
 
-def technical_agent(state: AgentState): return {"analysis": {"technical": "bullish"}}
+def technical_agent(state: AgentState):
+    signal = get_technical_signal(state['ticker'])
+    return {"analysis": {"technical": signal}}
+
 def fundamental_agent(state: AgentState): return {"analysis": {"fundamental": "neutral"}}
 def sentiment_agent(state: AgentState): return {"analysis": {"sentiment": "positive"}}
 def news_agent(state: AgentState): return {"analysis": {"news": "macro-stable"}}
