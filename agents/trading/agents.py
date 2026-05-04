@@ -1,8 +1,12 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
-from agents.trading.openmythos_client import reason_deeply
-from agents.trading.technical import get_technical_signal
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+
+from openmythos_client import reason_deeply
+from technical import get_technical_signal
 
 class AgentState(TypedDict):
     ticker: str
