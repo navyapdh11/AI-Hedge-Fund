@@ -1,12 +1,9 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
-
-from openmythos_client import reason_deeply
-from technical import get_technical_signal
+from .openmythos_client import reason_deeply
+from .technical import get_technical_signal
+from .portfolio_manager import decide_trade
 
 class AgentState(TypedDict):
     ticker: str
@@ -24,13 +21,17 @@ def news_agent(state: AgentState): return {"analysis": {"news": "macro-stable"}}
 
 def bull_agent(state: AgentState): 
     verdict = reason_deeply("Analyze bull case for " + state['ticker'])
-    return {"messages": [verdict]}
+    return {"messages": [verdict], "consensus": 0.5}
 
 def bear_agent(state: AgentState): 
     verdict = reason_deeply("Analyze bear case for " + state['ticker'])
-    return {"messages": [verdict]}
+    return {"messages": [verdict], "consensus": 0.5}
 
-def portfolio_manager(state: AgentState): return {"consensus": 0.9}
+def portfolio_manager(state: AgentState): 
+    # Aggregate consensus (simplified)
+    final_consensus = state.get('consensus', 0.5) 
+    decision = decide_trade(final_consensus, "NORMAL")
+    return {"analysis": {"decision": decision}}
 
 workflow = StateGraph(AgentState)
 workflow.add_node("technical", technical_agent)
