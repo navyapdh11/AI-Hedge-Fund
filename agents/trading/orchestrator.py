@@ -1,8 +1,5 @@
-from langgraph.graph import StateGraph, END
-
-# Placeholder for the 7-agent hedge fund orchestration using LangGraph
-def main():
-    print("AI Hedge Fund Orchestrator Initialized")
+from agents.trading.agents import app
 
 if __name__ == "__main__":
-    main()
+    result = app.invoke({"ticker": "BTC-USD"})
+    print("Orchestration complete:", result)
