@@ -1,6 +1,7 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
+from agents.trading.openmythos_client import reason_deeply
 
 class AgentState(TypedDict):
     ticker: str
@@ -8,16 +9,21 @@ class AgentState(TypedDict):
     analysis: dict
     consensus: float
 
-# Define the 7 agents as simple functions
 def technical_agent(state: AgentState): return {"analysis": {"technical": "bullish"}}
 def fundamental_agent(state: AgentState): return {"analysis": {"fundamental": "neutral"}}
 def sentiment_agent(state: AgentState): return {"analysis": {"sentiment": "positive"}}
 def news_agent(state: AgentState): return {"analysis": {"news": "macro-stable"}}
-def bull_agent(state: AgentState): return {"messages": ["Bull case: strong momentum"]}
-def bear_agent(state: AgentState): return {"messages": ["Bear case: overbought levels"]}
+
+def bull_agent(state: AgentState): 
+    verdict = reason_deeply("Analyze bull case for " + state['ticker'])
+    return {"messages": [verdict]}
+
+def bear_agent(state: AgentState): 
+    verdict = reason_deeply("Analyze bear case for " + state['ticker'])
+    return {"messages": [verdict]}
+
 def portfolio_manager(state: AgentState): return {"consensus": 0.9}
 
-# Orchestrator setup
 workflow = StateGraph(AgentState)
 workflow.add_node("technical", technical_agent)
 workflow.add_node("fundamental", fundamental_agent)
