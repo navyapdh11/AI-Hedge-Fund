@@ -1,9 +1,14 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
-from .openmythos_client import reason_deeply
-from .technical import get_technical_signal
-from .portfolio_manager import decide_trade
+import sys
+# Path is relative to the AI-Hedge-Fund root
+sys.path.append("/root/AI-Hedge-Fund")
+
+# Direct imports from the file, avoiding the 'agents.trading' prefix which confuses the Python path
+from openmythos_client import reason_deeply
+from technical import get_technical_signal
+from portfolio_manager import decide_trade
 
 class AgentState(TypedDict):
     ticker: str
@@ -28,7 +33,6 @@ def bear_agent(state: AgentState):
     return {"messages": [verdict], "consensus": 0.5}
 
 def portfolio_manager(state: AgentState): 
-    # Aggregate consensus
     final_consensus = state.get('consensus', 0.5) 
     decision = decide_trade(final_consensus, "NORMAL")
     return {"analysis": {"decision": decision}}
