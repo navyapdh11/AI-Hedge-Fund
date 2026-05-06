@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Hedge-Fund Terminal</title>
+    <style>
+        :root { --bg: #050507; --accent: #00d992; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+        .card { border: 1px solid var(--accent); padding: 15px; }
+        input { background: transparent; border: 1px solid var(--accent); color: var(--text); padding: 10px; width: 200px; }
+        button { background: var(--accent); border: none; padding: 10px 20px; color: var(--bg); font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>// AI-Hedge-Fund Terminal</h1>
+        <input type="text" id="ticker" placeholder="e.g., BTC-USD">
+        <button onclick="getTrade()">ANALYZE</button>
+        <div id="results" class="grid"></div>
+    </div>
+    <script>
+        async function getTrade() {
+            const ticker = document.getElementById('ticker').value;
+            const res = await fetch(`http://localhost:8000/analyze/${ticker}`);
+            const data = await res.json();
+            const debug = await (await fetch(`http://localhost:8000/debug/${ticker}`)).json();
+            
+            document.getElementById('results').innerHTML = `
+                <div class="card"><h3>Orchestrator Decision</h3><p>${data.analysis.decision}</p></div>
+                <div class="card"><h3>Technical Signal</h3><p>${JSON.stringify(debug.technical)}</p></div>
+                <div class="card"><h3>Fundamental</h3><p>${debug.fundamental}</p></div>
+                <div class="card"><h3>Sentiment</h3><p>${debug.sentiment}</p></div>
+                <div class="card"><h3>News</h3><p>${debug.news}</p></div>
+                <div class="card"><h3>Reasoning</h3><p>${data.messages.join('<br>')}</p></div>
+            `;
+        }
+    </script>
+</body>
+</html>
