@@ -2,13 +2,17 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Annotated
 import operator
 import sys
+import os
 # Path is relative to the AI-Hedge-Fund root
-sys.path.append("/root/AI-Hedge-Fund")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(current_dir, "trading"))
 
-# Direct imports from the file, avoiding the 'agents.trading' prefix which confuses the Python path
+# Direct imports from the file
 from openmythos_client import reason_deeply
 from technical import get_technical_signal
 from portfolio_manager import decide_trade
+sys.path.append(os.path.join(current_dir, ".."))
+from observability.tracing import tracer
 
 class AgentState(TypedDict):
     ticker: str
@@ -25,18 +29,20 @@ def sentiment_agent(state: AgentState): return {"analysis": {"sentiment": "posit
 def news_agent(state: AgentState): return {"analysis": {"news": "macro-stable"}}
 
 def bull_agent(state: AgentState): 
-    verdict = reason_deeply("Analyze bull case for " + state['ticker'])
-    return {"messages": [verdict], "consensus": 0.5}
+    with tracer.start_as_current_span("bull_analysis"):
+        verdict = reason_deeply("Analyze bull case for " + state['ticker'])
+        return {"messages": [verdict], "consensus": 0.5}
 
 def bear_agent(state: AgentState): 
-    verdict = reason_deeply("Analyze bear case for " + state['ticker'])
-    return {"messages": [verdict], "consensus": 0.5}
+    with tracer.start_as_current_span("bear_analysis"):
+        verdict = reason_deeply("Analyze bear case for " + state['ticker'])
+        return {"messages": [verdict], "consensus": 0.5}
 
 def portfolio_manager(state: AgentState): 
     final_consensus = state.get('consensus', 0.5) 
     decision = decide_trade(final_consensus, "NORMAL")
     return {"analysis": {"decision": decision}}
-
+...
 workflow = StateGraph(AgentState)
 workflow.add_node("technical", technical_agent)
 workflow.add_node("fundamental", fundamental_agent)

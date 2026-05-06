@@ -1,5 +1,7 @@
 import sys
-sys.path.append("/root/AI-Hedge-Fund/agents/trading")
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(current_dir))
 from agents import app
 
 if __name__ == "__main__":
